@@ -11,7 +11,7 @@
 ####  Edns Client Subnet(ECS)
 
 ECS 是由Google提交的一份DNS扩展协议，主要作用是传递用户的IP地址给权威DNS服务器。
-需要获取到用户ip地址 
+
 [rfc7871](https://datatracker.ietf.org/doc/html/rfc7871) （2016 年 5 月）
 
 遵循ECS标准的公共DNS，会将经遮罩脱敏后的客户端ip添加至DNS扩展区域( [EDNS rfc6891](https://datatracker.ietf.org/doc/html/rfc6891))传递至NS服务器 （通常为/24）
