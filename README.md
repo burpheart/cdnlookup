@@ -60,3 +60,12 @@ cdnlookup.exe -d www.taobao.com
 59.47.225.XXX
 ......
 ````
+IPV6 查询
+
+````
+cdnlookup.exe -d www.jd.com -6 -ip 240e:382:701:7700:600c:5c8:0000:0000
+240e:c3:2800::26
+240e:c3:2800::22
+240e:95d:c02:200::3a
+
+````

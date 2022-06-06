@@ -11,22 +11,34 @@ import (
 
 var IpMap map[string]bool
 
-func dnsquery(domain string, ip string, DnsServer string, OnlyIp bool, repeat int) {
+func dnsquery(domain string, ip string, DnsServer string, OnlyIp bool, repeat int, v6 bool) {
 	if !strings.HasSuffix(domain, ".") {
 		domain += "."
 	}
 	c := new(dns.Client)
 	m := new(dns.Msg)
-	m.SetQuestion(domain, dns.TypeA)
+	if v6 {
+		m.SetQuestion(domain, dns.TypeAAAA)
+	} else {
+		m.SetQuestion(domain, dns.TypeA)
+	}
+
 	o := new(dns.OPT)
 	o.Hdr.Name = "."
 	o.Hdr.Rrtype = dns.TypeOPT
 	e := new(dns.EDNS0_SUBNET) //EDNS
 	e.Code = dns.EDNS0SUBNET
-	e.Family = 1         // 1 IPv4 2 IPv6
-	e.SourceNetmask = 24 //  地址掩码 一般为24 (谷歌不支持大于24)
+	if v6 {
+		e.Family = 2         // 1 IPv4 2 IPv6
+		e.SourceNetmask = 56 //  地址掩码 ipv4 一般为 /24  ipv6为 /56
+		e.Address = net.ParseIP(ip).To16()
+	} else {
+		e.Family = 1
+		e.SourceNetmask = 24
+		e.Address = net.ParseIP(ip).To4()
+	}
+
 	e.SourceScope = 0
-	e.Address = net.ParseIP(ip).To4()
 	o.Option = append(o.Option, e)
 	m.Extra = append(m.Extra, o)
 	for i := 0; i < repeat; i++ {
@@ -43,6 +55,8 @@ func dnsquery(domain string, ip string, DnsServer string, OnlyIp bool, repeat in
 				} else {
 					println(answer.(*dns.A).A.String())
 				}
+			} else if answer.Header().Rrtype == dns.TypeAAAA {
+				IpMap[answer.(*dns.AAAA).AAAA.String()] = true
 			}
 		}
 	}
@@ -56,17 +70,18 @@ func main() {
 	var ip = flag.String("ip", "", "client ip")
 	var OnlyIp = flag.Bool("i", false, "Only output ip addr")
 	var repeat = flag.Int("r", 1, "repeat query rounds")
+	var v6 = flag.Bool("6", false, "query AAAA (ipv6)")
 	flag.Parse()
 	IpMap = make(map[string]bool)
-	if *ip != "" {
+	if (*ip != "") || (*v6) {
 		*OnlyIp = true
-		dnsquery(*domain, *ip, *DnsServer, *OnlyIp, *repeat)
+		dnsquery(*domain, *ip, *DnsServer, *OnlyIp, *repeat, *v6)
 	} else {
 		for city, ip := range CityMap {
 			if !*OnlyIp {
 				fmt.Println(city)
 			}
-			dnsquery(*domain, ip, *DnsServer, *OnlyIp, *repeat)
+			dnsquery(*domain, ip, *DnsServer, *OnlyIp, *repeat, *v6)
 
 		}
 	}
@@ -76,6 +91,5 @@ func main() {
 			println(ip)
 		}
 	}
-	//log.Println(in)
 
 }
