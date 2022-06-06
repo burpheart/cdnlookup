@@ -14,7 +14,7 @@ ECS 是由Google提交的一份DNS扩展协议，主要作用是传递用户的I
 
 [rfc7871](https://datatracker.ietf.org/doc/html/rfc7871) （2016 年 5 月）
 
-遵循ECS标准的公共DNS，会将经遮罩脱敏后的客户端ip添加至DNS扩展区域( [EDNS rfc6891](https://datatracker.ietf.org/doc/html/rfc6891))传递至权威DNS （通常为/24）
+遵循ECS标准的公共DNS，会将经遮罩脱敏后的客户端ip添加至DNS扩展区域( [EDNS rfc6891](https://datatracker.ietf.org/doc/html/rfc6891))传递至权威DNS （IPV4 遮罩通常为/24  IPV6 为 /56）
 
 这样权威DNS服务器就可以获取到模糊的客户端ip，这足以用于判断用户运营商和位置信息。
 
