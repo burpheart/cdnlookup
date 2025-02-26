@@ -26,6 +26,8 @@ func dnsquery(domain string, ip string, DnsServer string, OnlyIp bool, repeat in
 	o := new(dns.OPT)
 	o.Hdr.Name = "."
 	o.Hdr.Rrtype = dns.TypeOPT
+	// 缺少UDP payload size 有些NS不会响应
+	o.SetUDPSize(dns.DefaultMsgSize)
 	e := new(dns.EDNS0_SUBNET) //EDNS
 	e.Code = dns.EDNS0SUBNET
 	if v6 {
